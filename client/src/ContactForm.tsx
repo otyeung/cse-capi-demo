@@ -194,6 +194,7 @@ const ContactForm: React.FC = () => {
               name='lastName'
               value={formData.lastName}
               onChange={handleChange}
+              id='lastName'
             />
           </label>
 
@@ -204,6 +205,7 @@ const ContactForm: React.FC = () => {
               name='firstName'
               value={formData.firstName}
               onChange={handleChange}
+              id='firstName'
             />
           </label>
 
@@ -234,6 +236,7 @@ const ContactForm: React.FC = () => {
               name='title'
               value={formData.title}
               onChange={handleChange}
+              id='title'
             />
           </label>
 
@@ -244,6 +247,7 @@ const ContactForm: React.FC = () => {
               name='company'
               value={formData.company}
               onChange={handleChange}
+              id='company'
             />
           </label>
 
@@ -254,6 +258,7 @@ const ContactForm: React.FC = () => {
               name='countryCode'
               value={formData.countryCode}
               onChange={handleChange}
+              id='countryCode'
             />
           </label>
 
