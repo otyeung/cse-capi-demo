@@ -269,6 +269,7 @@ const ContactForm: React.FC = () => {
               name='currency'
               value={formData.currency}
               onChange={handleChange}
+              id='currency'
             />
           </label>
 
@@ -279,6 +280,7 @@ const ContactForm: React.FC = () => {
               name='value'
               value={formData.value}
               onChange={handleChange}
+              id='value'
             />
           </label>
 
