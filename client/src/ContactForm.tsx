@@ -24,15 +24,15 @@ interface FormData {
 
 const initialFormData: FormData = {
   li_fat_id: '123456',
-  lastName: 'John',
-  firstName: 'Doe',
+  lastName: 'Doe',
+  firstName: 'John',
   email: 'john.doe@example.com',
   hashEmail: '836f82db99121b3481011f16b49dfa5fbc714a0d1b1b9f784a1ebbbf5b39577f',
   title: 'Engineer',
   company: 'Acme Inc',
   countryCode: 'US',
   currency: 'USD',
-  value: '50.0',
+  value: '100.0',
   acxiomId: '12345678',
   oracleMoatId: '12345678',
 }
