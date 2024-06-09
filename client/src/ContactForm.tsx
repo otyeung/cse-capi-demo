@@ -4,7 +4,13 @@ import './App.css' // Importing styles
 import axios from 'axios'
 import Modal from './Modal' // Assuming you have a Modal component
 
-declare function gtag(...args: any[]): void
+// declare function gtag(...args: any[]): void
+
+declare global {
+  interface Window {
+    dataLayer: any[]
+  }
+}
 
 // Define type/interface for form data
 interface FormData {
@@ -101,18 +107,18 @@ const ContactForm: React.FC = () => {
       window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
         user_data: {
-          linkedinFirstPartyId: formData.get('li_fat_id'),
+          linkedinFirstPartyId: formData.li_fat_id,
           sha256_email_address: hashedEmail,
           address: {
-            first_name: formData.get('firstName'),
-            last_name: formData.get('lastName'),
-            country: formData.get('countryCode'),
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            country: formData.countryCode,
           },
-          jobTitle: formData.get('title'),
-          companyName: formData.get('company'),
+          jobTitle: formData.title,
+          companyName: formData.company,
         },
-        currency: formData.get('currency'),
-        value: formData.get('value'),
+        currency: formData.currency,
+        value: formData.value,
       })
 
       console.log('Form submitted successfully')
