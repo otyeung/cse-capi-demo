@@ -99,14 +99,11 @@ const ContactForm: React.FC = () => {
         ...prevData,
         hashEmail: hashedEmail,
       }))
-      await axios.post(
-        `${process.env.REACT_APP_SERVER_URL}/submit-google-form`,
-        { ...formData, hashEmail: hashedEmail }
-      )
 
+      // Send user_data, currency and value to data layer
       window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
-        event: 'Form Submit',
+        event: 'Add user_data to DL',
         user_data: {
           linkedinFirstPartyId: formData.li_fat_id,
           sha256_email_address: hashedEmail,
@@ -121,6 +118,12 @@ const ContactForm: React.FC = () => {
         currency: formData.currency,
         value: formData.value,
       })
+
+      // submit form data to Google Sheet
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/submit-google-form`,
+        { ...formData, hashEmail: hashedEmail }
+      )
 
       console.log('Form submitted successfully')
       setSubmissionStatus('success')
