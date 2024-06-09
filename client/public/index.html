@@ -32,6 +32,25 @@
     </script>
     <!-- End Google Tag Manager -->
 
+    <!-- LinkedIn CAPI - Page View - send li_fat_id to data layer -->
+    <script>
+      window.dataLayer = window.dataLayer || []
+      const li_fat_id =
+        (typeof window !== 'undefined' &&
+          new URLSearchParams(window.location.search).get('li_fat_id')) ||
+        (typeof document !== 'undefined' && getCookie('li_fat_id')) ||
+        ''
+      window.dataLayer.push({
+        event: 'Add li_fat_id to DL',
+        user_data: {
+          linkedinFirstPartyId: li_fat_id,
+        },
+        currency: 'USD',
+        value: 0,
+      })
+    </script>
+    <!-- End LinkedIn CAPI - Page View - send li_fat_id to data layer -->
+
     <!-- Meta Tags -->
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />

@@ -100,7 +100,7 @@ const ContactForm: React.FC = () => {
         hashEmail: hashedEmail,
       }))
 
-      // Send user_data, currency and value to data layer
+      // LinkedIn CAPI  - Form Submission - send user_data, currency and value to data layer
       window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
         event: 'Add user_data to DL',
