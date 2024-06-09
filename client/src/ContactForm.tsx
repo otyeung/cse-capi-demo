@@ -101,18 +101,18 @@ const ContactForm: React.FC = () => {
       window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
         user_data: {
-          linkedinFirstPartyId: formData.li_fat_id,
+          linkedinFirstPartyId: formData.get('li_fat_id'),
           sha256_email_address: hashedEmail,
           address: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            country: formData.countryCode,
+            first_name: formData.get('firstName'),
+            last_name: formData.get('lastName'),
+            country: formData.get('countryCode'),
           },
-          jobTitle: formData.title,
-          companyName: formData.company,
+          jobTitle: formData.get('title'),
+          companyName: formData.get('company'),
         },
-        currency: formData.currency,
-        value: formData.value,
+        currency: formData.get('currency'),
+        value: formData.get('value'),
       })
 
       console.log('Form submitted successfully')
