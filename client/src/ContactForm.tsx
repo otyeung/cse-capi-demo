@@ -114,6 +114,36 @@ const ContactForm: React.FC = () => {
       //   companyName: formData.company,
       // })
 
+      // Push user_data, currency, value to data layer variables
+      window.dataLayer = window.dataLayer || []
+      window.dataLayer.push({
+        user_data: {
+          linkedinFirstPartyId: formData.li_fat_id,
+          sha256_email_address: hashedEmail,
+          address: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            country: formData.countryCode,
+          },
+          jobTitle: formData.title,
+          companyName: formData.company,
+        },
+        currency: formData.currency,
+        value: formData.value,
+      })
+
+      // gtag('set', 'user_data', {
+      //   linkedinFirstPartyId: formData.li_fat_id,
+      //   sha256_email_address: hashedEmail,
+      //   address: {
+      //     first_name: formData.firstName,
+      //     last_name: formData.lastName,
+      //     country: formData.countryCode,
+      //   },
+      //   jobTitle: formData.title,
+      //   companyName: formData.company,
+      // })
+
       console.log('Form submitted successfully')
       setSubmissionStatus('success')
       setIsModalOpen(true)
