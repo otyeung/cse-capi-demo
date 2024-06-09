@@ -98,7 +98,8 @@ const ContactForm: React.FC = () => {
         { ...formData, hashEmail: hashedEmail }
       )
 
-      window.dataLayer.push({
+      (window as any).dataLayer = (window as any).dataLayer || []
+      (window as any).dataLayer.push({
         user_data: {
           linkedinFirstPartyId: formData.li_fat_id,
           sha256_email_address: hashedEmail,
@@ -282,6 +283,7 @@ const ContactForm: React.FC = () => {
               name='acxiomId'
               value={formData.acxiomId}
               onChange={handleChange}
+              id='acxiomId'
             />
           </label>
 
@@ -292,6 +294,7 @@ const ContactForm: React.FC = () => {
               name='oracleMoatId'
               value={formData.oracleMoatId}
               onChange={handleChange}
+              id='oracleMoatId'
             />
           </label>
 
