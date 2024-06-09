@@ -38,14 +38,13 @@ const initialFormData: FormData = {
 }
 
 const ContactForm: React.FC = () => {
-  const [formData, setFormData] = useState(initialFormData)
+  const [formData, setFormData] = useState<FormData>(initialFormData)
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const isAnalyticsExecuted = useRef(false)
 
   useEffect(() => {
     const fetchData = async () => {
-      // Grab the li_fat_id from URL or 1st party cookie
       const li_fat_id =
         (typeof window !== 'undefined' &&
           new URLSearchParams(window.location.search).get('li_fat_id')) ||
@@ -56,9 +55,7 @@ const ContactForm: React.FC = () => {
         setFormData((prevData) => ({ ...prevData, li_fat_id }))
 
         // Identify the user with their li_fat_id
-        // window.analytics.identify(null, {
-        //   li_fat_id: li_fat_id,
-        // })
+        // window.analytics.identify(null, { li_fat_id: li_fat_id })
 
         // Track the Page view event
         // window.analytics.track('Page View')
@@ -71,10 +68,9 @@ const ContactForm: React.FC = () => {
   }, []) // Empty dependency array ensures it runs only once
 
   // Begin Cookie routine
-  // getcookie function
   function getCookie(name: string): string | undefined {
     if (typeof document !== 'undefined') {
-      let matches = document.cookie.match(
+      const matches = document.cookie.match(
         new RegExp(
           '(?:^|; )' +
             name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') +
@@ -99,20 +95,8 @@ const ContactForm: React.FC = () => {
       }))
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL}/submit-google-form`,
-        formData
+        { ...formData, hashEmail: hashedEmail }
       )
-
-      // gtag('set', 'user_data', {
-      //   linkedinFirstPartyId: formData.li_fat_id,
-      //   sha256_email_address: hashedEmail,
-      //   address: {
-      //     first_name: formData.firstName,
-      //     last_name: formData.lastName,
-      //     country: formData.countryCode,
-      //   },
-      //   jobTitle: formData.title,
-      //   companyName: formData.company,
-      // })
 
       window.dataLayer.push({
         user_data: {
@@ -130,18 +114,6 @@ const ContactForm: React.FC = () => {
         value: formData.value,
       })
 
-      // gtag('set', 'user_data', {
-      //   linkedinFirstPartyId: formData.li_fat_id,
-      //   sha256_email_address: hashedEmail,
-      //   address: {
-      //     first_name: formData.firstName,
-      //     last_name: formData.lastName,
-      //     country: formData.countryCode,
-      //   },
-      //   jobTitle: formData.title,
-      //   companyName: formData.company,
-      // })
-
       console.log('Form submitted successfully')
       setSubmissionStatus('success')
       setIsModalOpen(true)
@@ -152,23 +124,14 @@ const ContactForm: React.FC = () => {
     }
   }
 
-  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [e.target.name]: e.target.value,
-  //   })) // Using functional update
-  // }
-
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
 
-    // Update form data
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }))
 
-    // Calculate hash for email if the email field is changing
     if (name === 'email') {
       const hashedEmail = await hashData(value)
       setFormData((prevData) => ({
@@ -187,7 +150,7 @@ const ContactForm: React.FC = () => {
   }
 
   // Begin SHA-256 hashing function
-  const hashData = async (value) => {
+  const hashData = async (value: string): Promise<string> => {
     const encoder = new TextEncoder()
     const buffer = await crypto.subtle.digest(
       'SHA-256',
