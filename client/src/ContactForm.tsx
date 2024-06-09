@@ -114,9 +114,7 @@ const ContactForm: React.FC = () => {
       //   companyName: formData.company,
       // })
 
-      // Push user_data, currency, value to data layer variables
-      (window as any).dataLayer = (window as any).dataLayer || [];
-      (window as any).dataLayer.push({
+      window.dataLayer.push({
         user_data: {
           linkedinFirstPartyId: formData.li_fat_id,
           sha256_email_address: hashedEmail,
@@ -130,7 +128,7 @@ const ContactForm: React.FC = () => {
         },
         currency: formData.currency,
         value: formData.value,
-      });
+      })
 
       // gtag('set', 'user_data', {
       //   linkedinFirstPartyId: formData.li_fat_id,
@@ -189,7 +187,7 @@ const ContactForm: React.FC = () => {
   }
 
   // Begin SHA-256 hashing function
-  const hashData = async (value: string): Promise<string> => {
+  const hashData = async (value) => {
     const encoder = new TextEncoder()
     const buffer = await crypto.subtle.digest(
       'SHA-256',
