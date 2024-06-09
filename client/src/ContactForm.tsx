@@ -98,8 +98,8 @@ const ContactForm: React.FC = () => {
         { ...formData, hashEmail: hashedEmail }
       )
 
-      (window as any).dataLayer = (window as any).dataLayer || []
-      (window as any).dataLayer.push({
+      window.dataLayer = window.dataLayer || []
+      window.dataLayer.push({
         user_data: {
           linkedinFirstPartyId: formData.li_fat_id,
           sha256_email_address: hashedEmail,
