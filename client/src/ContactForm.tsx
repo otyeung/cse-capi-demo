@@ -106,6 +106,7 @@ const ContactForm: React.FC = () => {
 
       window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
+        event: 'Form Submit',
         user_data: {
           linkedinFirstPartyId: formData.li_fat_id,
           sha256_email_address: hashedEmail,
