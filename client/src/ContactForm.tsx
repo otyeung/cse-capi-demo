@@ -308,8 +308,15 @@ const ContactForm: React.FC = () => {
             />
           </label>
 
-          <button type='submit'>Submit</button>
-          <button type='button' onClick={handleResetForm}>
+          <button type='submit' id='class-btn-submit' className='btn-submit'>
+            Submit
+          </button>
+          <button
+            type='button'
+            id='btn-reset'
+            className='class-btn-reset'
+            onClick={handleResetForm}
+          >
             Reset Form
           </button>
 
