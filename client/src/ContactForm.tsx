@@ -308,7 +308,7 @@ const ContactForm: React.FC = () => {
             />
           </label>
 
-          <button type='submit' id='class-btn-submit' className='btn-submit'>
+          <button type='submit' id='btn-submit' className='class-btn-submit'>
             Submit
           </button>
           <button
