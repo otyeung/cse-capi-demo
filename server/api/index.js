@@ -23,7 +23,8 @@ const googleFormFields = {
 }
 
 // Define a whitelist of allowed origins for CORS
-const whitelist = ['https://cse-capi-demo.vercel.app', 'http://localhost:3000']
+//const whitelist = ['https://cse-capi-demo.vercel.app', 'http://localhost:3000']
+const whitelist = ['*']
 
 // Configure CORS options
 const corsOptions = {
