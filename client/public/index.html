@@ -34,17 +34,40 @@
 
     <!-- LinkedIn CAPI - Page View - send li_fat_id to data layer -->
     <script>
-      window.dataLayer = window.dataLayer || []
+      function getCookie(name) {
+        let matches = document.cookie.match(
+          new RegExp(
+            '(?:^|; )' +
+              name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') +
+              '=([^;]*)'
+          )
+        )
+        // usually a cookie value is encoded, so decode it.
+        return matches ? decodeURIComponent(matches[1]) : undefined
+      }
       const li_fat_id =
         (typeof window !== 'undefined' &&
           new URLSearchParams(window.location.search).get('li_fat_id')) ||
         (typeof document !== 'undefined' && getCookie('li_fat_id')) ||
         ''
+      function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+          /[xy]/g,
+          function (c) {
+            const r = (Math.random() * 16) | 0,
+              v = c == 'x' ? r : (r & 0x3) | 0x8
+            return v.toString(16)
+          }
+        )
+      }
+      const uuid = generateUUID()
+      window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
         event: 'LI CAPI Page View',
         user_data: {
           linkedinFirstPartyId: li_fat_id,
         },
+        event_id: uuid,
       })
     </script>
     <!-- End LinkedIn CAPI - Page View - send li_fat_id to data layer -->

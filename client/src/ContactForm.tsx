@@ -89,6 +89,18 @@ const ContactForm: React.FC = () => {
   }
   // End Cookie routine
 
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0,
+          v = c == 'x' ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+      }
+    )
+  }
+  const uuid = generateUUID()
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -117,6 +129,7 @@ const ContactForm: React.FC = () => {
         },
         currency: formData.currency,
         value: formData.value,
+        event_id: uuid,
       })
 
       // submit form data to Google Sheet
