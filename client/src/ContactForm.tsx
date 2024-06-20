@@ -115,7 +115,7 @@ const ContactForm: React.FC = () => {
       // LinkedIn CAPI  - Form Submission - send user_data, currency and value to data layer
       window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
-        event: 'LI-GTM-CAPI-TTTTT-Form-Submit',
+        event: 'LI-CAPI-Form-Submit',
         user_data: {
           linkedinFirstPartyId: formData.li_fat_id,
           sha256_email_address: hashedEmail,
