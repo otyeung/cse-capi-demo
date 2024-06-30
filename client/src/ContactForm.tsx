@@ -29,7 +29,7 @@ interface FormData {
 }
 
 const initialFormData: FormData = {
-  li_fat_id: '123456',
+  li_fat_id: '12345678',
   lastName: 'Doe',
   firstName: 'John',
   email: 'john.doe@example.com',
@@ -113,7 +113,7 @@ const ContactForm: React.FC = () => {
       }))
 
       // LinkedIn CAPI  - Form Submission - send user_data, currency and value to data layer
-      window.dataLayer = window.dataLayer || []
+      /*       window.dataLayer = window.dataLayer || []
       window.dataLayer.push({
         event: 'LI-CAPI-Form-Submit',
         user_data: {
@@ -130,7 +130,7 @@ const ContactForm: React.FC = () => {
         currency: formData.currency,
         value: formData.value,
         event_id: uuid,
-      })
+      }) */
 
       // submit form data to Google Sheet
       await axios.post(
