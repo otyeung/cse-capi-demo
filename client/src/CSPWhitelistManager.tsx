@@ -127,7 +127,22 @@ const CSPWhitelistManager: React.FC = () => {
   const [staticSources, setStaticSources] = useState<StaticSource[]>(() => {
     // Load from localStorage if available
     const saved = localStorage.getItem('csp-static-sources')
-    return saved ? JSON.parse(saved) : initialStaticSources
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        // Check if the data has the frameSrc property (migration)
+        if (parsed[0] && parsed[0].frameSrc === undefined) {
+          console.log('Migrating old localStorage data...')
+          localStorage.removeItem('csp-static-sources')
+          return initialStaticSources
+        }
+        return parsed
+      } catch (e) {
+        console.error('Error parsing localStorage:', e)
+        return initialStaticSources
+      }
+    }
+    return initialStaticSources
   })
 
   const [sources, setSources] = useState<LinkedInSource[]>(() => {
@@ -178,6 +193,20 @@ const CSPWhitelistManager: React.FC = () => {
     setTimeout(() => {
       window.location.reload()
     }, 500)
+  }
+
+  const handleReset = () => {
+    if (
+      confirm(
+        'This will reset all CSP settings to default values. Are you sure?'
+      )
+    ) {
+      localStorage.removeItem('csp-linkedin-sources')
+      localStorage.removeItem('csp-static-sources')
+      setSources(initialSources)
+      setStaticSources(initialStaticSources)
+      alert('Settings reset! Click Apply Changes to reload with defaults.')
+    }
   }
 
   const updateCSPMetaTag = (
@@ -597,6 +626,29 @@ const CSPWhitelistManager: React.FC = () => {
             }
           >
             Apply Changes
+          </button>
+
+          <button
+            onClick={handleReset}
+            style={{
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '12px 30px',
+              borderRadius: '5px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = '#c82333')
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = '#dc3545')
+            }
+          >
+            Reset to Defaults
           </button>
 
           <span style={{ fontSize: '14px', color: '#666' }}>
