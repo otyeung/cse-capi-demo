@@ -9,7 +9,75 @@ interface LinkedInSource {
   connectSrc: boolean
 }
 
+interface StaticSource {
+  value: string
+  label: string
+  scriptSrc: boolean
+  imgSrc: boolean
+  connectSrc: boolean
+  description: string
+}
+
 const CSPWhitelistManager: React.FC = () => {
+  const initialStaticSources: StaticSource[] = [
+    {
+      value: "'self'",
+      label: "'self'",
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+      description: 'Allow resources from same origin',
+    },
+    {
+      value: "'unsafe-inline'",
+      label: "'unsafe-inline'",
+      scriptSrc: true,
+      imgSrc: false,
+      connectSrc: false,
+      description: 'Allow inline scripts',
+    },
+    {
+      value: "'unsafe-eval'",
+      label: "'unsafe-eval'",
+      scriptSrc: true,
+      imgSrc: false,
+      connectSrc: false,
+      description: 'Allow eval() in scripts',
+    },
+    {
+      value: 'data:',
+      label: 'data:',
+      scriptSrc: false,
+      imgSrc: true,
+      connectSrc: false,
+      description: 'Allow data URIs',
+    },
+    {
+      value: 'https://www.googletagmanager.com',
+      label: 'googletagmanager.com',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: false,
+      description: 'Google Tag Manager',
+    },
+    {
+      value: 'http://localhost:4000',
+      label: 'localhost:4000',
+      scriptSrc: false,
+      imgSrc: false,
+      connectSrc: true,
+      description: 'Local API server',
+    },
+    {
+      value: 'https://cse-capi-demo-api.vercel.app',
+      label: 'vercel.app API',
+      scriptSrc: false,
+      imgSrc: false,
+      connectSrc: true,
+      description: 'Production API server',
+    },
+  ]
+
   const initialSources: LinkedInSource[] = [
     {
       url: 'px.ads.linkedin.com',
@@ -48,6 +116,12 @@ const CSPWhitelistManager: React.FC = () => {
     },
   ]
 
+  const [staticSources, setStaticSources] = useState<StaticSource[]>(() => {
+    // Load from localStorage if available
+    const saved = localStorage.getItem('csp-static-sources')
+    return saved ? JSON.parse(saved) : initialStaticSources
+  })
+
   const [sources, setSources] = useState<LinkedInSource[]>(() => {
     // Load from localStorage if available
     const saved = localStorage.getItem('csp-linkedin-sources')
@@ -56,6 +130,8 @@ const CSPWhitelistManager: React.FC = () => {
 
   const [appliedSources, setAppliedSources] =
     useState<LinkedInSource[]>(sources)
+  const [appliedStaticSources, setAppliedStaticSources] =
+    useState<StaticSource[]>(staticSources)
 
   const handleToggle = (
     index: number,
@@ -66,13 +142,24 @@ const CSPWhitelistManager: React.FC = () => {
     setSources(newSources)
   }
 
+  const handleStaticToggle = (
+    index: number,
+    directive: 'scriptSrc' | 'imgSrc' | 'connectSrc'
+  ) => {
+    const newSources = [...staticSources]
+    newSources[index][directive] = !newSources[index][directive]
+    setStaticSources(newSources)
+  }
+
   const handleApply = () => {
     // Save to localStorage
     localStorage.setItem('csp-linkedin-sources', JSON.stringify(sources))
+    localStorage.setItem('csp-static-sources', JSON.stringify(staticSources))
     setAppliedSources(sources)
+    setAppliedStaticSources(staticSources)
 
     // Update CSP meta tag
-    updateCSPMetaTag(sources)
+    updateCSPMetaTag(staticSources, sources)
 
     // Show confirmation
     alert(
@@ -85,7 +172,10 @@ const CSPWhitelistManager: React.FC = () => {
     }, 500)
   }
 
-  const updateCSPMetaTag = (sources: LinkedInSource[]) => {
+  const updateCSPMetaTag = (
+    staticSources: StaticSource[],
+    sources: LinkedInSource[]
+  ) => {
     // Remove existing CSP meta tag
     const existingMeta = document.querySelector(
       'meta[http-equiv="Content-Security-Policy"]'
@@ -95,6 +185,18 @@ const CSPWhitelistManager: React.FC = () => {
     }
 
     // Build CSP directives
+    const scriptSrcStatic = staticSources
+      .filter((s) => s.scriptSrc)
+      .map((s) => s.value)
+
+    const imgSrcStatic = staticSources
+      .filter((s) => s.imgSrc)
+      .map((s) => s.value)
+
+    const connectSrcStatic = staticSources
+      .filter((s) => s.connectSrc)
+      .map((s) => s.value)
+
     const scriptSrcUrls = sources
       .filter((s) => s.scriptSrc)
       .map((s) => `https://${s.url}`)
@@ -107,29 +209,11 @@ const CSPWhitelistManager: React.FC = () => {
       .filter((s) => s.connectSrc)
       .map((s) => `https://${s.url}`)
 
-    const scriptSrc = [
-      "'self'",
-      "'unsafe-inline'",
-      "'unsafe-eval'",
-      'https://www.googletagmanager.com',
-      ...scriptSrcUrls,
-    ].join(' ')
+    const scriptSrc = [...scriptSrcStatic, ...scriptSrcUrls].join(' ')
 
-    const imgSrc = [
-      "'self'",
-      'data:',
-      'https://www.googletagmanager.com',
-      ...imgSrcUrls,
-    ].join(' ')
+    const imgSrc = [...imgSrcStatic, ...imgSrcUrls].join(' ')
 
-    // Get server URL - include both local and production endpoints
-    // Also include LinkedIn domains for fetch/XHR requests
-    const connectSrc = [
-      "'self'",
-      'http://localhost:4000',
-      'https://cse-capi-demo-api.vercel.app',
-      ...connectSrcUrls,
-    ].join(' ')
+    const connectSrc = [...connectSrcStatic, ...connectSrcUrls].join(' ')
 
     // Create new CSP meta tag
     const meta = document.createElement('meta')
@@ -151,7 +235,7 @@ const CSPWhitelistManager: React.FC = () => {
 
   useEffect(() => {
     // Apply CSP on initial load
-    updateCSPMetaTag(appliedSources)
+    updateCSPMetaTag(appliedStaticSources, appliedSources)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -181,114 +265,274 @@ const CSPWhitelistManager: React.FC = () => {
           LinkedIn Insight Tag - Content Security Policy Whitelist
         </h3>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '15px',
-            marginBottom: '15px',
-          }}
-        >
-          {sources.map((source, index) => (
-            <div
-              key={source.url}
-              style={{
-                padding: '12px',
-                backgroundColor: '#fff',
-                border: '1px solid #ccc',
-                borderRadius: '5px',
-              }}
-            >
+        {/* Static CSP Sources Section */}
+        <div style={{ marginBottom: '20px' }}>
+          <h4
+            style={{
+              margin: '0 0 10px 0',
+              color: '#333',
+              fontSize: '15px',
+              fontWeight: 'bold',
+            }}
+          >
+            Core CSP Settings
+          </h4>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '15px',
+            }}
+          >
+            {staticSources.map((source, index) => (
               <div
+                key={source.value}
                 style={{
-                  fontWeight: 'bold',
-                  marginBottom: '8px',
-                  fontSize: '14px',
-                  fontFamily: 'monospace',
-                  color: '#0073b1',
+                  padding: '12px',
+                  backgroundColor: '#fff',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px',
                 }}
               >
-                {source.label}
+                <div
+                  style={{
+                    fontWeight: 'bold',
+                    marginBottom: '4px',
+                    fontSize: '13px',
+                    fontFamily: 'monospace',
+                    color: '#0073b1',
+                  }}
+                >
+                  {source.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: '#666',
+                    marginBottom: '8px',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {source.description}
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                  }}
+                >
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '3px',
+                      backgroundColor: source.scriptSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
+                      opacity: source.scriptSrc ? 1 : 0.5,
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.scriptSrc}
+                      onChange={() => handleStaticToggle(index, 'scriptSrc')}
+                      style={{
+                        marginRight: '6px',
+                        width: '14px',
+                        height: '14px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '12px' }}>script-src</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '3px',
+                      backgroundColor: source.imgSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
+                      opacity: source.imgSrc ? 1 : 0.5,
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.imgSrc}
+                      onChange={() => handleStaticToggle(index, 'imgSrc')}
+                      style={{
+                        marginRight: '6px',
+                        width: '14px',
+                        height: '14px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '12px' }}>img-src</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '3px',
+                      backgroundColor: source.connectSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
+                      opacity: source.connectSrc ? 1 : 0.5,
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.connectSrc}
+                      onChange={() => handleStaticToggle(index, 'connectSrc')}
+                      style={{
+                        marginRight: '6px',
+                        width: '14px',
+                        height: '14px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '12px' }}>connect-src</span>
+                  </label>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* LinkedIn Sources Section */}
+        <div>
+          <h4
+            style={{
+              margin: '0 0 10px 0',
+              color: '#333',
+              fontSize: '15px',
+              fontWeight: 'bold',
+            }}
+          >
+            LinkedIn Insight Tag Domains
+          </h4>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '15px',
+              marginBottom: '15px',
+            }}
+          >
+            {sources.map((source, index) => (
               <div
-                style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+                key={source.url}
+                style={{
+                  padding: '12px',
+                  backgroundColor: '#fff',
+                  border: '1px solid #ccc',
+                  borderRadius: '5px',
+                }}
               >
-                <label
+                <div
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    backgroundColor: source.scriptSrc
-                      ? '#e7f3ff'
-                      : 'transparent',
-                    borderRadius: '3px',
+                    fontWeight: 'bold',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontFamily: 'monospace',
+                    color: '#0073b1',
                   }}
                 >
-                  <input
-                    type='checkbox'
-                    checked={source.scriptSrc}
-                    onChange={() => handleToggle(index, 'scriptSrc')}
-                    style={{
-                      marginRight: '8px',
-                      width: '16px',
-                      height: '16px',
-                      cursor: 'pointer',
-                    }}
-                  />
-                  <span style={{ fontSize: '13px' }}>script-src</span>
-                </label>
-                <label
+                  {source.label}
+                </div>
+                <div
                   style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    backgroundColor: source.imgSrc ? '#e7f3ff' : 'transparent',
-                    borderRadius: '3px',
+                    flexDirection: 'column',
+                    gap: '6px',
                   }}
                 >
-                  <input
-                    type='checkbox'
-                    checked={source.imgSrc}
-                    onChange={() => handleToggle(index, 'imgSrc')}
+                  <label
                     style={{
-                      marginRight: '8px',
-                      width: '16px',
-                      height: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
                       cursor: 'pointer',
+                      padding: '4px',
+                      backgroundColor: source.scriptSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
                     }}
-                  />
-                  <span style={{ fontSize: '13px' }}>img-src</span>
-                </label>
-                <label
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    backgroundColor: source.connectSrc
-                      ? '#e7f3ff'
-                      : 'transparent',
-                    borderRadius: '3px',
-                  }}
-                >
-                  <input
-                    type='checkbox'
-                    checked={source.connectSrc}
-                    onChange={() => handleToggle(index, 'connectSrc')}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.scriptSrc}
+                      onChange={() => handleToggle(index, 'scriptSrc')}
+                      style={{
+                        marginRight: '8px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '13px' }}>script-src</span>
+                  </label>
+                  <label
                     style={{
-                      marginRight: '8px',
-                      width: '16px',
-                      height: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
                       cursor: 'pointer',
+                      padding: '4px',
+                      backgroundColor: source.imgSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
                     }}
-                  />
-                  <span style={{ fontSize: '13px' }}>connect-src</span>
-                </label>
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.imgSrc}
+                      onChange={() => handleToggle(index, 'imgSrc')}
+                      style={{
+                        marginRight: '8px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '13px' }}>img-src</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      backgroundColor: source.connectSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.connectSrc}
+                      onChange={() => handleToggle(index, 'connectSrc')}
+                      style={{
+                        marginRight: '8px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '13px' }}>connect-src</span>
+                  </label>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

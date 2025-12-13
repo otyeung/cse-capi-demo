@@ -8,7 +8,7 @@ const App: React.FC = () => {
   return (
     <div>
       {/* Main content with bottom padding for fixed CSP manager */}
-      <div style={{ paddingBottom: '280px' }}>
+      <div style={{ paddingBottom: '550px' }}>
         {/* Rendering the ContactForm component */}
         <ContactForm />
       </div>
