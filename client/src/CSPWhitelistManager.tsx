@@ -148,7 +148,25 @@ const CSPWhitelistManager: React.FC = () => {
   const [sources, setSources] = useState<LinkedInSource[]>(() => {
     // Load from localStorage if available
     const saved = localStorage.getItem('csp-linkedin-sources')
-    return saved ? JSON.parse(saved) : initialSources
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        // Safety check: if all sources are disabled, reset to defaults
+        const hasAnyEnabled = parsed.some(
+          (s: LinkedInSource) => s.scriptSrc || s.imgSrc || s.connectSrc
+        )
+        if (!hasAnyEnabled) {
+          console.log('All sources disabled - resetting to defaults...')
+          localStorage.removeItem('csp-linkedin-sources')
+          return initialSources
+        }
+        return parsed
+      } catch (e) {
+        console.error('Error parsing LinkedIn sources:', e)
+        return initialSources
+      }
+    }
+    return initialSources
   })
 
   const [appliedSources, setAppliedSources] =
@@ -277,6 +295,23 @@ const CSPWhitelistManager: React.FC = () => {
   }
 
   useEffect(() => {
+    // Safety check on mount: if critical scripts are disabled, show warning and reset
+    const criticalScripts = appliedStaticSources.find(
+      (s) => s.value === "'unsafe-inline'" || s.value === "'unsafe-eval'"
+    )
+    const hasAnyCriticalScript = appliedStaticSources.some(
+      (s) =>
+        (s.value === "'unsafe-inline'" || s.value === "'unsafe-eval'") &&
+        s.scriptSrc
+    )
+
+    if (!hasAnyCriticalScript) {
+      console.warn('Critical CSP directives disabled! Auto-resetting...')
+      localStorage.clear()
+      window.location.reload()
+      return
+    }
+
     // Apply CSP on initial load
     updateCSPMetaTag(appliedStaticSources, appliedSources)
     // eslint-disable-next-line react-hooks/exhaustive-deps
