@@ -4,23 +4,47 @@ import React, { useState, useEffect } from 'react'
 interface LinkedInSource {
   url: string
   label: string
-  enabled: boolean
+  scriptSrc: boolean
+  imgSrc: boolean
+  connectSrc: boolean
 }
 
 const CSPWhitelistManager: React.FC = () => {
   const initialSources: LinkedInSource[] = [
-    { url: 'px.ads.linkedin.com', label: 'px.ads.linkedin.com', enabled: true },
+    {
+      url: 'px.ads.linkedin.com',
+      label: 'px.ads.linkedin.com',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+    },
     {
       url: 'px4.ads.linkedin.com',
       label: 'px4.ads.linkedin.com',
-      enabled: true,
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
     },
-    { url: 'dc.ads.linkedin.com', label: 'dc.ads.linkedin.com', enabled: true },
-    { url: 'snap.licdn.com', label: 'snap.licdn.com', enabled: true },
+    {
+      url: 'dc.ads.linkedin.com',
+      label: 'dc.ads.linkedin.com',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+    },
+    {
+      url: 'snap.licdn.com',
+      label: 'snap.licdn.com',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+    },
     {
       url: 'p.adsymptotic.com',
       label: 'p.adsymptotic.com',
-      enabled: true,
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
     },
   ]
 
@@ -33,9 +57,12 @@ const CSPWhitelistManager: React.FC = () => {
   const [appliedSources, setAppliedSources] =
     useState<LinkedInSource[]>(sources)
 
-  const handleToggle = (index: number) => {
+  const handleToggle = (
+    index: number,
+    directive: 'scriptSrc' | 'imgSrc' | 'connectSrc'
+  ) => {
     const newSources = [...sources]
-    newSources[index].enabled = !newSources[index].enabled
+    newSources[index][directive] = !newSources[index][directive]
     setSources(newSources)
   }
 
@@ -44,11 +71,8 @@ const CSPWhitelistManager: React.FC = () => {
     localStorage.setItem('csp-linkedin-sources', JSON.stringify(sources))
     setAppliedSources(sources)
 
-    // Build CSP policy
-    const enabledUrls = sources.filter((s) => s.enabled).map((s) => s.url)
-
     // Update CSP meta tag
-    updateCSPMetaTag(enabledUrls)
+    updateCSPMetaTag(sources)
 
     // Show confirmation
     alert(
@@ -61,7 +85,7 @@ const CSPWhitelistManager: React.FC = () => {
     }, 500)
   }
 
-  const updateCSPMetaTag = (enabledUrls: string[]) => {
+  const updateCSPMetaTag = (sources: LinkedInSource[]) => {
     // Remove existing CSP meta tag
     const existingMeta = document.querySelector(
       'meta[http-equiv="Content-Security-Policy"]'
@@ -71,19 +95,31 @@ const CSPWhitelistManager: React.FC = () => {
     }
 
     // Build CSP directives
+    const scriptSrcUrls = sources
+      .filter((s) => s.scriptSrc)
+      .map((s) => `https://${s.url}`)
+
+    const imgSrcUrls = sources
+      .filter((s) => s.imgSrc)
+      .map((s) => `https://${s.url}`)
+
+    const connectSrcUrls = sources
+      .filter((s) => s.connectSrc)
+      .map((s) => `https://${s.url}`)
+
     const scriptSrc = [
       "'self'",
       "'unsafe-inline'",
       "'unsafe-eval'",
       'https://www.googletagmanager.com',
-      ...enabledUrls.map((url) => `https://${url}`),
+      ...scriptSrcUrls,
     ].join(' ')
 
     const imgSrc = [
       "'self'",
       'data:',
       'https://www.googletagmanager.com',
-      ...enabledUrls.map((url) => `https://${url}`),
+      ...imgSrcUrls,
     ].join(' ')
 
     // Get server URL - include both local and production endpoints
@@ -92,7 +128,7 @@ const CSPWhitelistManager: React.FC = () => {
       "'self'",
       'http://localhost:4000',
       'https://cse-capi-demo-api.vercel.app',
-      ...enabledUrls.map((url) => `https://${url}`),
+      ...connectSrcUrls,
     ].join(' ')
 
     // Create new CSP meta tag
@@ -115,10 +151,7 @@ const CSPWhitelistManager: React.FC = () => {
 
   useEffect(() => {
     // Apply CSP on initial load
-    const enabledUrls = appliedSources
-      .filter((s) => s.enabled)
-      .map((s) => s.url)
-    updateCSPMetaTag(enabledUrls)
+    updateCSPMetaTag(appliedSources)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -151,40 +184,110 @@ const CSPWhitelistManager: React.FC = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '15px',
             marginBottom: '15px',
           }}
         >
           {sources.map((source, index) => (
-            <label
+            <div
               key={source.url}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                padding: '10px',
-                backgroundColor: source.enabled ? '#e7f3ff' : '#fff',
-                border: source.enabled ? '2px solid #0073b1' : '1px solid #ccc',
+                padding: '12px',
+                backgroundColor: '#fff',
+                border: '1px solid #ccc',
                 borderRadius: '5px',
-                transition: 'all 0.2s',
               }}
             >
-              <input
-                type='checkbox'
-                checked={source.enabled}
-                onChange={() => handleToggle(index)}
+              <div
                 style={{
-                  marginRight: '10px',
-                  width: '18px',
-                  height: '18px',
-                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontFamily: 'monospace',
+                  color: '#0073b1',
                 }}
-              />
-              <span style={{ fontSize: '14px', fontFamily: 'monospace' }}>
+              >
                 {source.label}
-              </span>
-            </label>
+              </div>
+              <div
+                style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+              >
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    backgroundColor: source.scriptSrc
+                      ? '#e7f3ff'
+                      : 'transparent',
+                    borderRadius: '3px',
+                  }}
+                >
+                  <input
+                    type='checkbox'
+                    checked={source.scriptSrc}
+                    onChange={() => handleToggle(index, 'scriptSrc')}
+                    style={{
+                      marginRight: '8px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                  <span style={{ fontSize: '13px' }}>script-src</span>
+                </label>
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    backgroundColor: source.imgSrc ? '#e7f3ff' : 'transparent',
+                    borderRadius: '3px',
+                  }}
+                >
+                  <input
+                    type='checkbox'
+                    checked={source.imgSrc}
+                    onChange={() => handleToggle(index, 'imgSrc')}
+                    style={{
+                      marginRight: '8px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                  <span style={{ fontSize: '13px' }}>img-src</span>
+                </label>
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    backgroundColor: source.connectSrc
+                      ? '#e7f3ff'
+                      : 'transparent',
+                    borderRadius: '3px',
+                  }}
+                >
+                  <input
+                    type='checkbox'
+                    checked={source.connectSrc}
+                    onChange={() => handleToggle(index, 'connectSrc')}
+                    style={{
+                      marginRight: '8px',
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                  <span style={{ fontSize: '13px' }}>connect-src</span>
+                </label>
+              </div>
+            </div>
           ))}
         </div>
 
@@ -213,8 +316,10 @@ const CSPWhitelistManager: React.FC = () => {
           </button>
 
           <span style={{ fontSize: '14px', color: '#666' }}>
-            {sources.filter((s) => s.enabled).length} of {sources.length}{' '}
-            sources enabled (img-src & script-src)
+            script-src: {sources.filter((s) => s.scriptSrc).length} | img-src:{' '}
+            {sources.filter((s) => s.imgSrc).length} | connect-src:{' '}
+            {sources.filter((s) => s.connectSrc).length} of {sources.length}{' '}
+            sources
           </span>
         </div>
 
