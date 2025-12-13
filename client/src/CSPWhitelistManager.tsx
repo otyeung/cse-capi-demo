@@ -87,10 +87,12 @@ const CSPWhitelistManager: React.FC = () => {
     ].join(' ')
 
     // Get server URL - include both local and production endpoints
+    // Also include LinkedIn domains for fetch/XHR requests
     const connectSrc = [
       "'self'",
       'http://localhost:4000',
       'https://cse-capi-demo-api.vercel.app',
+      ...enabledUrls.map((url) => `https://${url}`),
     ].join(' ')
 
     // Create new CSP meta tag
