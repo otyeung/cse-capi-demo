@@ -321,6 +321,8 @@ const CSPWhitelistManager: React.FC = () => {
         bottom: 0,
         left: 0,
         right: 0,
+        maxHeight: '50vh',
+        overflowY: 'auto',
         backgroundColor: '#f5f5f5',
         borderTop: '2px solid #0073b1',
         padding: '20px',

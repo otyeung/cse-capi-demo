@@ -3,8 +3,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 140vh;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding-top: 50px;
 }
 
 /* Styles for the centered form */
