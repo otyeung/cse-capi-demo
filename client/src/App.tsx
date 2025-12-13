@@ -1,13 +1,20 @@
 // src/App.tsx
 import React from 'react'
 import ContactForm from './ContactForm'
+import CSPWhitelistManager from './CSPWhitelistManager'
 
 // Functional Component for the App
 const App: React.FC = () => {
   return (
     <div>
-      {/* Rendering the ContactForm component */}
-      <ContactForm />
+      {/* Main content with bottom padding for fixed CSP manager */}
+      <div style={{ paddingBottom: '280px' }}>
+        {/* Rendering the ContactForm component */}
+        <ContactForm />
+      </div>
+
+      {/* CSP Whitelist Manager - Fixed at bottom */}
+      <CSPWhitelistManager />
     </div>
   )
 }
