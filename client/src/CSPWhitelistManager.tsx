@@ -15,6 +15,7 @@ interface StaticSource {
   scriptSrc: boolean
   imgSrc: boolean
   connectSrc: boolean
+  frameSrc: boolean
   description: string
 }
 
@@ -26,6 +27,7 @@ const CSPWhitelistManager: React.FC = () => {
       scriptSrc: true,
       imgSrc: true,
       connectSrc: true,
+      frameSrc: false,
       description: 'Allow resources from same origin',
     },
     {
@@ -34,6 +36,7 @@ const CSPWhitelistManager: React.FC = () => {
       scriptSrc: true,
       imgSrc: false,
       connectSrc: false,
+      frameSrc: false,
       description: 'Allow inline scripts',
     },
     {
@@ -42,6 +45,7 @@ const CSPWhitelistManager: React.FC = () => {
       scriptSrc: true,
       imgSrc: false,
       connectSrc: false,
+      frameSrc: false,
       description: 'Allow eval() in scripts',
     },
     {
@@ -50,6 +54,7 @@ const CSPWhitelistManager: React.FC = () => {
       scriptSrc: false,
       imgSrc: true,
       connectSrc: false,
+      frameSrc: false,
       description: 'Allow data URIs',
     },
     {
@@ -58,6 +63,7 @@ const CSPWhitelistManager: React.FC = () => {
       scriptSrc: true,
       imgSrc: true,
       connectSrc: false,
+      frameSrc: true,
       description: 'Google Tag Manager',
     },
     {
@@ -66,6 +72,7 @@ const CSPWhitelistManager: React.FC = () => {
       scriptSrc: false,
       imgSrc: false,
       connectSrc: true,
+      frameSrc: false,
       description: 'Local API server',
     },
     {
@@ -74,6 +81,7 @@ const CSPWhitelistManager: React.FC = () => {
       scriptSrc: false,
       imgSrc: false,
       connectSrc: true,
+      frameSrc: false,
       description: 'Production API server',
     },
   ]
@@ -144,7 +152,7 @@ const CSPWhitelistManager: React.FC = () => {
 
   const handleStaticToggle = (
     index: number,
-    directive: 'scriptSrc' | 'imgSrc' | 'connectSrc'
+    directive: 'scriptSrc' | 'imgSrc' | 'connectSrc' | 'frameSrc'
   ) => {
     const newSources = [...staticSources]
     newSources[index][directive] = !newSources[index][directive]
@@ -197,6 +205,10 @@ const CSPWhitelistManager: React.FC = () => {
       .filter((s) => s.connectSrc)
       .map((s) => s.value)
 
+    const frameSrcStatic = staticSources
+      .filter((s) => s.frameSrc)
+      .map((s) => s.value)
+
     const scriptSrcUrls = sources
       .filter((s) => s.scriptSrc)
       .map((s) => `https://${s.url}`)
@@ -215,6 +227,8 @@ const CSPWhitelistManager: React.FC = () => {
 
     const connectSrc = [...connectSrcStatic, ...connectSrcUrls].join(' ')
 
+    const frameSrc = frameSrcStatic.join(' ')
+
     // Create new CSP meta tag
     const meta = document.createElement('meta')
     meta.httpEquiv = 'Content-Security-Policy'
@@ -225,7 +239,7 @@ const CSPWhitelistManager: React.FC = () => {
       img-src ${imgSrc};
       font-src 'self' data:;
       connect-src ${connectSrc};
-      frame-src https://www.googletagmanager.com;
+      ${frameSrc ? `frame-src ${frameSrc};` : ''}
     `
       .replace(/\s+/g, ' ')
       .trim()
@@ -399,6 +413,32 @@ const CSPWhitelistManager: React.FC = () => {
                       }}
                     />
                     <span style={{ fontSize: '12px' }}>connect-src</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '3px',
+                      backgroundColor: source.frameSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
+                      opacity: source.frameSrc ? 1 : 0.5,
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.frameSrc}
+                      onChange={() => handleStaticToggle(index, 'frameSrc')}
+                      style={{
+                        marginRight: '6px',
+                        width: '14px',
+                        height: '14px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '12px' }}>frame-src</span>
                   </label>
                 </div>
               </div>
