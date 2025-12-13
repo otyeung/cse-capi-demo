@@ -215,7 +215,7 @@ const CSPWhitelistManager: React.FC = () => {
 
   const handleReset = () => {
     if (
-      confirm(
+      window.confirm(
         'This will reset all CSP settings to default values. Are you sure?'
       )
     ) {
@@ -296,9 +296,6 @@ const CSPWhitelistManager: React.FC = () => {
 
   useEffect(() => {
     // Safety check on mount: if critical scripts are disabled, show warning and reset
-    const criticalScripts = appliedStaticSources.find(
-      (s) => s.value === "'unsafe-inline'" || s.value === "'unsafe-eval'"
-    )
     const hasAnyCriticalScript = appliedStaticSources.some(
       (s) =>
         (s.value === "'unsafe-inline'" || s.value === "'unsafe-eval'") &&
