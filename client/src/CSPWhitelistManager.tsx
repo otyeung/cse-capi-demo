@@ -295,20 +295,6 @@ const CSPWhitelistManager: React.FC = () => {
   }
 
   useEffect(() => {
-    // Safety check on mount: if critical scripts are disabled, show warning and reset
-    const hasAnyCriticalScript = appliedStaticSources.some(
-      (s) =>
-        (s.value === "'unsafe-inline'" || s.value === "'unsafe-eval'") &&
-        s.scriptSrc
-    )
-
-    if (!hasAnyCriticalScript) {
-      console.warn('Critical CSP directives disabled! Auto-resetting...')
-      localStorage.clear()
-      window.location.reload()
-      return
-    }
-
     // Apply CSP on initial load
     updateCSPMetaTag(appliedStaticSources, appliedSources)
     // eslint-disable-next-line react-hooks/exhaustive-deps
