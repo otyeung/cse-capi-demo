@@ -202,6 +202,49 @@ const CSPWhitelistManager: React.FC = () => {
     // Update CSP meta tag
     updateCSPMetaTag(staticSources, sources)
 
+    // Log CSP changes to console
+    console.log('=== Apply changes to CSP ===')
+    console.log('Static Sources:', {
+      enabled: staticSources.filter(
+        (s) => s.scriptSrc || s.imgSrc || s.connectSrc || s.frameSrc
+      ),
+      all: staticSources,
+    })
+    console.log('LinkedIn Sources:', {
+      enabled: sources.filter((s) => s.scriptSrc || s.imgSrc || s.connectSrc),
+      all: sources,
+    })
+
+    // Build and log the actual CSP directives
+    const scriptSrcStatic = staticSources
+      .filter((s) => s.scriptSrc)
+      .map((s) => s.value)
+    const scriptSrcUrls = sources
+      .filter((s) => s.scriptSrc)
+      .map((s) => `https://${s.url}`)
+    const imgSrcStatic = staticSources
+      .filter((s) => s.imgSrc)
+      .map((s) => s.value)
+    const imgSrcUrls = sources
+      .filter((s) => s.imgSrc)
+      .map((s) => `https://${s.url}`)
+    const connectSrcStatic = staticSources
+      .filter((s) => s.connectSrc)
+      .map((s) => s.value)
+    const connectSrcUrls = sources
+      .filter((s) => s.connectSrc)
+      .map((s) => `https://${s.url}`)
+    const frameSrcStatic = staticSources
+      .filter((s) => s.frameSrc)
+      .map((s) => s.value)
+
+    console.log('CSP Directives:', {
+      'script-src': [...scriptSrcStatic, ...scriptSrcUrls],
+      'img-src': [...imgSrcStatic, ...imgSrcUrls],
+      'connect-src': [...connectSrcStatic, ...connectSrcUrls],
+      'frame-src': frameSrcStatic,
+    })
+
     // Show confirmation
     alert(
       'Content Security Policy updated successfully! The page will reload to apply changes.'
@@ -297,6 +340,52 @@ const CSPWhitelistManager: React.FC = () => {
   useEffect(() => {
     // Apply CSP on initial load
     updateCSPMetaTag(appliedStaticSources, appliedSources)
+
+    // Log CSP configuration on window load
+    console.log('=== CSP Whitelist Configuration (Window Loaded) ===')
+    console.log('Static Sources:', {
+      enabled: appliedStaticSources.filter(
+        (s) => s.scriptSrc || s.imgSrc || s.connectSrc || s.frameSrc
+      ),
+      all: appliedStaticSources,
+    })
+    console.log('LinkedIn Sources:', {
+      enabled: appliedSources.filter(
+        (s) => s.scriptSrc || s.imgSrc || s.connectSrc
+      ),
+      all: appliedSources,
+    })
+
+    // Build and log the actual CSP directives
+    const scriptSrcStatic = appliedStaticSources
+      .filter((s) => s.scriptSrc)
+      .map((s) => s.value)
+    const scriptSrcUrls = appliedSources
+      .filter((s) => s.scriptSrc)
+      .map((s) => `https://${s.url}`)
+    const imgSrcStatic = appliedStaticSources
+      .filter((s) => s.imgSrc)
+      .map((s) => s.value)
+    const imgSrcUrls = appliedSources
+      .filter((s) => s.imgSrc)
+      .map((s) => `https://${s.url}`)
+    const connectSrcStatic = appliedStaticSources
+      .filter((s) => s.connectSrc)
+      .map((s) => s.value)
+    const connectSrcUrls = appliedSources
+      .filter((s) => s.connectSrc)
+      .map((s) => `https://${s.url}`)
+    const frameSrcStatic = appliedStaticSources
+      .filter((s) => s.frameSrc)
+      .map((s) => s.value)
+
+    console.log('Active CSP Directives:', {
+      'script-src': [...scriptSrcStatic, ...scriptSrcUrls],
+      'img-src': [...imgSrcStatic, ...imgSrcUrls],
+      'connect-src': [...connectSrcStatic, ...connectSrcUrls],
+      'frame-src': frameSrcStatic,
+    })
+    console.log('===================================')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
