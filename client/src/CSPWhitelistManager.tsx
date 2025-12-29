@@ -60,7 +60,7 @@ const CSPWhitelistManager: React.FC = () => {
       value: 'data:',
       label: 'data:',
       scriptSrc: false,
-      imgSrc: false,
+      imgSrc: true,
       connectSrc: false,
       frameSrc: false,
       styleSrc: false,
@@ -121,6 +121,17 @@ const CSPWhitelistManager: React.FC = () => {
       styleSrc: false,
       fontSrc: false,
       description: 'Production API server',
+    },
+    {
+      value: 'https://cse-capi-demo.vercel.app',
+      label: 'cse-capi-demo.vercel.app',
+      scriptSrc: false,
+      imgSrc: true,
+      connectSrc: false,
+      frameSrc: false,
+      styleSrc: false,
+      fontSrc: false,
+      description: 'Production App (for favicon/images)',
     },
   ]
 
