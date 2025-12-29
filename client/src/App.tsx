@@ -79,11 +79,7 @@ const App: React.FC = () => {
           <ContactForm />
         </div>
       )}
-      {activeTab === 'csp' && (
-        <div style={{ position: 'relative', isolation: 'isolate' }}>
-          <CSPWhitelistManager />
-        </div>
-      )}
+      {activeTab === 'csp' && <CSPWhitelistManager />}
     </div>
   )
 }
