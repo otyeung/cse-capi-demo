@@ -512,7 +512,8 @@ const CSPWhitelistManager: React.FC = () => {
       style={{
         backgroundColor: '#f5f5f5',
         padding: '20px',
-        minHeight: '100vh',
+        minHeight: 'calc(100vh - 65px)',
+        position: 'relative',
       }}
     >
       <div style={{ width: '100%' }}>
