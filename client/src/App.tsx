@@ -14,107 +14,175 @@ const App: React.FC = () => {
     localStorage.setItem('activeTab', activeTab)
   }, [activeTab])
 
-  // Reposition Tag Assistant on mount and continuously
+  // ULTIMATE FIX: Force Tag Assistant to lower right corner
   useEffect(() => {
-    const repositionTagAssistant = () => {
-      // Target Chrome extension popups and overlays that are direct children of body
-      const bodyChildren = Array.from(document.body.children) as HTMLElement[]
+    // Inject aggressive CSS override
+    const styleId = 'tag-assistant-position-override'
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement
 
-      bodyChildren.forEach((el) => {
-        const style = window.getComputedStyle(el)
-        const hasHighZIndex = parseInt(style.zIndex || '0') > 999
-        const isPositioned =
-          style.position === 'absolute' || style.position === 'fixed'
+    if (!styleEl) {
+      styleEl = document.createElement('style')
+      styleEl.id = styleId
+      styleEl.textContent = `
+        /* Ultra-aggressive Tag Assistant positioning */
+        body > div[style*="position"][style*="z-index"],
+        body > div[style*="position: absolute"],
+        body > div[style*="position: fixed"],
+        .badge,
+        .badge-iframe,
+        [class*="badge"],
+        [class*="tag-assistant"],
+        [class*="TagAssistant"],
+        div[style*="z-index: 2147483647"],
+        div[style*="z-index: 999999"] {
+          position: fixed !important;
+          bottom: 20px !important;
+          right: 20px !important;
+          top: auto !important;
+          left: auto !important;
+          transform: none !important;
+          margin: 0 !important;
+          z-index: 2147483647 !important;
+        }
+      `
+      document.head.appendChild(styleEl)
+    }
 
-        // Check if element or its children contain "Tag Assistant"
-        const hasTagAssistant =
+    // Super aggressive repositioning function
+    const forceReposition = () => {
+      // Method 1: Scan ALL elements and identify Tag Assistant by multiple criteria
+      const allElements = document.querySelectorAll('*')
+
+      allElements.forEach((element) => {
+        const el = element as HTMLElement
+        const computedStyle = window.getComputedStyle(el)
+        const zIndex = parseInt(computedStyle.zIndex || '0')
+
+        // Multiple detection criteria
+        const isHighZIndex = zIndex > 999999 || zIndex === 2147483647
+        const hasTagText =
           el.textContent?.includes('Tag Assistant') ||
-          el.innerHTML?.includes('Tag Assistant') ||
-          el.querySelector('[class*="tag"]') ||
-          el.querySelector('[class*="Tag"]') ||
-          el.id?.includes('tag') ||
-          el.className?.includes('badge')
+          el.textContent?.includes('Tag Assistant Connected')
+        const hasTagInHTML =
+          el.innerHTML?.includes('tag-assistant') ||
+          el.innerHTML?.includes('TagAssistant')
+        const isBadge = el.className?.includes('badge')
+        const hasTagId = el.id?.toLowerCase().includes('tag')
+        const isDirectBodyChild = el.parentElement === document.body
+        const isPositioned =
+          computedStyle.position === 'fixed' ||
+          computedStyle.position === 'absolute'
 
-        if ((hasHighZIndex && isPositioned) || hasTagAssistant) {
+        if (
+          (isHighZIndex && isPositioned) ||
+          (hasTagText && isDirectBodyChild) ||
+          (hasTagInHTML && isPositioned) ||
+          (isBadge && zIndex > 100)
+        ) {
+          // Nuclear option: Remove all positioning and re-apply
+          el.style.cssText = ''
+
+          // Apply with maximum priority
+          const styles = {
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            top: 'auto',
+            left: 'auto',
+            transform: 'none',
+            margin: '0',
+            'z-index': '2147483647',
+          }
+
+          Object.entries(styles).forEach(([prop, value]) => {
+            el.style.setProperty(prop, value, 'important')
+          })
+
+          // Also set as direct style attribute for extra insurance
+          el.setAttribute(
+            'style',
+            `position: fixed !important;
+             bottom: 20px !important;
+             right: 20px !important;
+             top: auto !important;
+             left: auto !important;
+             transform: none !important;
+             margin: 0 !important;
+             z-index: 2147483647 !important;`
+          )
+        }
+      })
+
+      // Method 2: Direct body children with high z-index
+      Array.from(document.body.children).forEach((child) => {
+        const el = child as HTMLElement
+        const zIndex = parseInt(window.getComputedStyle(el).zIndex || '0')
+
+        if (zIndex > 900000) {
           el.style.setProperty('position', 'fixed', 'important')
           el.style.setProperty('bottom', '20px', 'important')
           el.style.setProperty('right', '20px', 'important')
           el.style.setProperty('top', 'auto', 'important')
           el.style.setProperty('left', 'auto', 'important')
           el.style.setProperty('transform', 'none', 'important')
-          el.style.setProperty('margin', '0', 'important')
-          el.style.setProperty('z-index', '999999', 'important')
-        }
-      })
-
-      // Also check for specific selectors that might be Tag Assistant elements
-      const selectors = [
-        '.badge',
-        '.badge-iframe',
-        '[class*="badge"]',
-        '[class*="tag-assistant"]',
-        '[class*="TagAssistant"]',
-        'div[style*="position: absolute"][style*="z-index"]',
-        'div[style*="position: fixed"][style*="z-index"]',
-      ]
-
-      selectors.forEach((selector) => {
-        try {
-          const elements = document.querySelectorAll(selector)
-          elements.forEach((element) => {
-            const el = element as HTMLElement
-            // Only reposition if it has high z-index (likely an overlay/popup)
-            const zIndex = parseInt(window.getComputedStyle(el).zIndex || '0')
-            if (zIndex > 999 || el.textContent?.includes('Tag Assistant')) {
-              el.style.setProperty('position', 'fixed', 'important')
-              el.style.setProperty('bottom', '20px', 'important')
-              el.style.setProperty('right', '20px', 'important')
-              el.style.setProperty('top', 'auto', 'important')
-              el.style.setProperty('left', 'auto', 'important')
-              el.style.setProperty('transform', 'none', 'important')
-              el.style.setProperty('margin', '0', 'important')
-              el.style.setProperty('z-index', '999999', 'important')
-            }
-          })
-        } catch (e) {
-          // Ignore selector errors
         }
       })
     }
 
-    // Initial repositioning with staggered timing
-    repositionTagAssistant()
-    const timers = [50, 100, 250, 500, 750, 1000, 1500, 2000].map((delay) =>
-      setTimeout(repositionTagAssistant, delay)
+    // Immediate execution
+    forceReposition()
+
+    // Use requestAnimationFrame for smoother updates
+    let rafId: number
+    const rafLoop = () => {
+      forceReposition()
+      rafId = requestAnimationFrame(rafLoop)
+    }
+    rafId = requestAnimationFrame(rafLoop)
+
+    // Backup: Regular intervals
+    const intervals = [
+      setInterval(forceReposition, 100), // Very frequent checks
+      setInterval(forceReposition, 500),
+      setInterval(forceReposition, 1000),
+    ]
+
+    // Backup: Timeouts for initial load
+    const timeouts = [0, 50, 100, 200, 300, 500, 750, 1000, 2000, 3000].map(
+      (delay) => setTimeout(forceReposition, delay)
     )
 
-    // Continuous monitoring - check more frequently initially
-    const interval = setInterval(repositionTagAssistant, 500)
-
-    // MutationObserver to catch DOM changes
-    const observer = new MutationObserver((mutations) => {
-      // Only reposition if we detect new nodes or style changes
-      const shouldReposition = mutations.some(
-        (mutation) =>
-          (mutation.type === 'childList' && mutation.addedNodes.length > 0) ||
-          mutation.type === 'attributes'
-      )
-      if (shouldReposition) {
-        repositionTagAssistant()
-      }
+    // MutationObserver with immediate response
+    const observer = new MutationObserver(() => {
+      forceReposition()
+      requestAnimationFrame(forceReposition)
     })
 
     observer.observe(document.body, {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['style', 'class'],
+      attributeFilter: ['style', 'class', 'id'],
+    })
+
+    // Listen for any DOM changes
+    const domChanges = [
+      'DOMNodeInserted',
+      'DOMAttrModified',
+      'DOMSubtreeModified',
+    ]
+    domChanges.forEach((event) => {
+      document.addEventListener(event, forceReposition)
     })
 
     return () => {
-      timers.forEach((timer) => clearTimeout(timer))
-      clearInterval(interval)
+      cancelAnimationFrame(rafId)
+      intervals.forEach(clearInterval)
+      timeouts.forEach(clearTimeout)
       observer.disconnect()
+      domChanges.forEach((event) => {
+        document.removeEventListener(event, forceReposition)
+      })
     }
   }, [])
 

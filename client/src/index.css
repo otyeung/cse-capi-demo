@@ -3,10 +3,15 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Ensure Google Tag Assistant widget floats in lower right corner */
+/* ULTIMATE FIX: Force Tag Assistant to lower right corner with maximum specificity */
+body > div[style*='position'][style*='z-index'],
+body > div[style*='position: absolute'],
+body > div[style*='position: fixed'],
+body > div[style*='z-index: 2147483647'],
+body > div[style*='z-index: 999999'],
+.badge,
 .badge.badge-iframe,
 .badge-iframe,
-.badge,
 [class*='badge'],
 #tag-assistant-container,
 #tag-assistant-root,
@@ -17,9 +22,7 @@
 div[style*='position: absolute'][style*='bottom'],
 div[style*='position: absolute'][style*='z-index'],
 div[style*='position: fixed'][style*='z-index'],
-iframe[src*='tagassistant'],
-/* Target any high z-index positioned divs that might be the Tag Assistant */
-body > div[style*='position'][style*='z-index'] {
+iframe[src*='tagassistant'] {
   position: fixed !important;
   bottom: 20px !important;
   right: 20px !important;
@@ -27,5 +30,12 @@ body > div[style*='position'][style*='z-index'] {
   left: auto !important;
   transform: none !important;
   margin: 0 !important;
-  z-index: 999999 !important;
+  z-index: 2147483647 !important;
+}
+
+/* Additional layer of enforcement */
+html body > div[style] {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
 }
