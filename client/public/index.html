@@ -103,6 +103,45 @@
     <!-- Root Container for Web Application -->
     <div id="root"></div>
     <!-- End Root Container for Web Application -->
+
+    <!-- Fix Google Tag Assistant Position -->
+    <script type="text/javascript">
+      // Function to reposition Tag Assistant widget to lower right corner
+      function repositionTagAssistant() {
+        const selectors = [
+          '.badge.badge-iframe',
+          '.badge-iframe',
+          '[class*="badge"]',
+        ]
+
+        selectors.forEach((selector) => {
+          const elements = document.querySelectorAll(selector)
+          elements.forEach((element) => {
+            if (element.textContent.includes('Tag Assistant')) {
+              element.style.cssText = `
+                position: fixed !important;
+                bottom: 20px !important;
+                right: 20px !important;
+                top: auto !important;
+                left: auto !important;
+                transform: none !important;
+                margin: 0 !important;
+                z-index: 999999 !important;
+              `
+            }
+          })
+        })
+      }
+
+      // Run on load and periodically check (Tag Assistant might load late)
+      window.addEventListener('load', repositionTagAssistant)
+      setInterval(repositionTagAssistant, 1000)
+
+      // Also watch for DOM changes
+      const observer = new MutationObserver(repositionTagAssistant)
+      observer.observe(document.body, { childList: true, subtree: true })
+    </script>
+
     <!-- LinkedIn Insight Tag -->
     <!-- <script type="text/javascript">
       _linkedin_partner_id = '5806284'
