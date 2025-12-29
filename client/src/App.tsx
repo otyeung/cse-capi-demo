@@ -12,36 +12,51 @@ const App: React.FC = () => {
 
   useEffect(() => {
     localStorage.setItem('activeTab', activeTab)
-
-    // Force reposition Tag Assistant when tab changes
-    setTimeout(() => {
-      const repositionTagAssistant = () => {
-        const selectors = [
-          '.badge.badge-iframe',
-          '.badge-iframe',
-          '[class*="badge"]',
-        ]
-
-        selectors.forEach((selector) => {
-          const elements = document.querySelectorAll(selector)
-          elements.forEach((element) => {
-            const el = element as HTMLElement
-            if (el.textContent?.includes('Tag Assistant')) {
-              el.style.position = 'fixed'
-              el.style.bottom = '20px'
-              el.style.right = '20px'
-              el.style.top = 'auto'
-              el.style.left = 'auto'
-              el.style.transform = 'none'
-              el.style.margin = '0'
-              el.style.zIndex = '999999'
-            }
-          })
-        })
-      }
-      repositionTagAssistant()
-    }, 100)
   }, [activeTab])
+
+  // Reposition Tag Assistant on mount and periodically
+  useEffect(() => {
+    const repositionTagAssistant = () => {
+      const selectors = [
+        '.badge.badge-iframe',
+        '.badge-iframe',
+        '[class*="badge"]',
+        'div[style*="position"]',
+        'iframe[src*="tagassistant"]',
+      ]
+
+      selectors.forEach((selector) => {
+        const elements = document.querySelectorAll(selector)
+        elements.forEach((element) => {
+          const el = element as HTMLElement
+          if (
+            el.textContent?.includes('Tag Assistant') ||
+            el.querySelector('[class*="Tag"]') ||
+            el.querySelector('[class*="tag"]')
+          ) {
+            el.style.position = 'fixed'
+            el.style.bottom = '20px'
+            el.style.right = '20px'
+            el.style.top = 'auto'
+            el.style.left = 'auto'
+            el.style.transform = 'none'
+            el.style.margin = '0'
+            el.style.zIndex = '999999'
+          }
+        })
+      })
+    }
+
+    // Initial repositioning
+    setTimeout(repositionTagAssistant, 100)
+    setTimeout(repositionTagAssistant, 500)
+    setTimeout(repositionTagAssistant, 1000)
+
+    // Set up interval to continuously check and reposition
+    const interval = setInterval(repositionTagAssistant, 2000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className='min-h-screen bg-gray-50'>
