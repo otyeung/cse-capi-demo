@@ -6,6 +6,8 @@
 /* Ensure Google Tag Assistant widget floats in lower right corner */
 .badge.badge-iframe,
 .badge-iframe,
+.badge,
+[class*='badge'],
 #tag-assistant-container,
 #tag-assistant-root,
 [class*='tag-assistant'],
@@ -13,8 +15,10 @@
 [class*='TagAssistant'],
 [class*='google-tag-assistant'],
 div[style*='position: absolute'][style*='bottom'],
+div[style*='position: absolute'][style*='z-index'],
+div[style*='position: fixed'][style*='z-index'],
 iframe[src*='tagassistant'],
-/* Target the specific Tag Assistant iframe and container */
+/* Target any high z-index positioned divs that might be the Tag Assistant */
 body > div[style*='position'][style*='z-index'] {
   position: fixed !important;
   bottom: 20px !important;
