@@ -108,34 +108,36 @@
     <script type="text/javascript">
       // Function to reposition Tag Assistant widget to lower right corner
       function repositionTagAssistant() {
-        const selectors = [
-          '.badge.badge-iframe',
-          '.badge-iframe',
-          '[class*="badge"]',
-        ]
+        // Target all possible selectors for Tag Assistant
+        const allElements = document.querySelectorAll('*')
 
-        selectors.forEach((selector) => {
-          const elements = document.querySelectorAll(selector)
-          elements.forEach((element) => {
-            if (element.textContent.includes('Tag Assistant')) {
-              element.style.cssText = `
-                position: fixed !important;
-                bottom: 20px !important;
-                right: 20px !important;
-                top: auto !important;
-                left: auto !important;
-                transform: none !important;
-                margin: 0 !important;
-                z-index: 999999 !important;
-              `
-            }
-          })
+        allElements.forEach((element) => {
+          if (
+            element.textContent.includes('Tag Assistant') &&
+            (element.classList.contains('badge') ||
+              element.classList.contains('badge-iframe') ||
+              element.className.includes('badge'))
+          ) {
+            element.style.setProperty('position', 'fixed', 'important')
+            element.style.setProperty('bottom', '20px', 'important')
+            element.style.setProperty('right', '20px', 'important')
+            element.style.setProperty('top', 'auto', 'important')
+            element.style.setProperty('left', 'auto', 'important')
+            element.style.setProperty('transform', 'none', 'important')
+            element.style.setProperty('margin', '0', 'important')
+            element.style.setProperty('z-index', '999999', 'important')
+          }
         })
       }
 
-      // Run on load and periodically check (Tag Assistant might load late)
+      // Run immediately
+      repositionTagAssistant()
+
+      // Run on load
       window.addEventListener('load', repositionTagAssistant)
-      setInterval(repositionTagAssistant, 1000)
+
+      // Run frequently
+      setInterval(repositionTagAssistant, 500)
 
       // Also watch for DOM changes
       const observer = new MutationObserver(repositionTagAssistant)
