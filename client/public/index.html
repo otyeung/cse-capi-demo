@@ -152,11 +152,69 @@
         }
       }
 
-      // Run immediately and aggressively
-      repositionTagAssistant()
-      setTimeout(repositionTagAssistant, 100)
-      setTimeout(repositionTagAssistant, 500)
-      setTimeout(repositionTagAssistant, 1000)
+      // ULTIMATE FIX - Aggressive repositioning with style watching
+      ;(function () {
+        let processedElements = new WeakSet()
+
+        function forcePosition(element) {
+          if (!element || processedElements.has(element)) return
+
+          // Completely override inline styles
+          element.style.cssText = '' // Clear all inline styles first
+
+          // Set new styles
+          element.style.position = 'fixed'
+          element.style.bottom = '20px'
+          element.style.right = '20px'
+          element.style.top = 'auto'
+          element.style.left = 'auto'
+          element.style.transform = 'none'
+          element.style.margin = '0'
+          element.style.zIndex = '999999'
+          element.style.maxWidth = '320px'
+
+          processedElements.add(element)
+
+          // Watch this specific element for style changes
+          const styleObserver = new MutationObserver(() => {
+            if (
+              element.style.position !== 'fixed' ||
+              element.style.bottom !== '20px' ||
+              element.style.right !== '20px'
+            ) {
+              element.style.position = 'fixed'
+              element.style.bottom = '20px'
+              element.style.right = '20px'
+              element.style.top = 'auto'
+              element.style.left = 'auto'
+              element.style.transform = 'none'
+            }
+          })
+
+          styleObserver.observe(element, {
+            attributes: true,
+            attributeFilter: ['style'],
+            attributeOldValue: true,
+          })
+        }
+
+        repositionTagAssistant = function () {
+          const allDivs = document.getElementsByTagName('div')
+          for (let i = 0; i < allDivs.length; i++) {
+            const element = allDivs[i]
+            const text = element.textContent || ''
+            if (text.includes('Tag Assistant')) {
+              forcePosition(element)
+            }
+          }
+        }
+
+        // Execute aggressively
+        repositionTagAssistant()
+        for (let i = 0; i < 10; i++) {
+          setTimeout(repositionTagAssistant, i * 200)
+        }
+      })()
 
       // Run on load
       window.addEventListener('load', repositionTagAssistant)
