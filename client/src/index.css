@@ -3,39 +3,11 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* ULTIMATE FIX: Force Tag Assistant to lower right corner with maximum specificity */
-body > div[style*='position'][style*='z-index'],
-body > div[style*='position: absolute'],
-body > div[style*='position: fixed'],
-body > div[style*='z-index: 2147483647'],
-body > div[style*='z-index: 999999'],
-.badge,
-.badge.badge-iframe,
-.badge-iframe,
-[class*='badge'],
-#tag-assistant-container,
-#tag-assistant-root,
-[class*='tag-assistant'],
-[id*='tag-assistant'],
-[class*='TagAssistant'],
-[class*='google-tag-assistant'],
-div[style*='position: absolute'][style*='bottom'],
-div[style*='position: absolute'][style*='z-index'],
-div[style*='position: fixed'][style*='z-index'],
-iframe[src*='tagassistant'] {
+/* Simple Tag Assistant positioning - target high z-index body children */
+body > div[style*='z-index'] {
   position: fixed !important;
   bottom: 20px !important;
   right: 20px !important;
   top: auto !important;
   left: auto !important;
-  transform: none !important;
-  margin: 0 !important;
-  z-index: 2147483647 !important;
-}
-
-/* Additional layer of enforcement */
-html body > div[style] {
-  position: fixed !important;
-  bottom: 20px !important;
-  right: 20px !important;
 }
