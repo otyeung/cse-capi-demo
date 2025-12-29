@@ -4,12 +4,24 @@
 @import 'tailwindcss/utilities';
 
 /* Ensure Google Tag Assistant widget floats in lower right corner */
+.badge.badge-iframe,
+.badge-iframe,
 #tag-assistant-container,
 #tag-assistant-root,
 [class*='tag-assistant'],
-[id*='tag-assistant'] {
+[id*='tag-assistant'],
+[class*='TagAssistant'],
+[class*='google-tag-assistant'],
+div[style*='position: absolute'][style*='bottom'],
+iframe[src*='tagassistant'],
+/* Target the specific Tag Assistant iframe and container */
+body > div[style*='position'][style*='z-index'] {
   position: fixed !important;
   bottom: 20px !important;
   right: 20px !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
   z-index: 999999 !important;
 }
