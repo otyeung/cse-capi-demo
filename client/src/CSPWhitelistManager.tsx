@@ -16,6 +16,8 @@ interface StaticSource {
   imgSrc: boolean
   connectSrc: boolean
   frameSrc: boolean
+  styleSrc: boolean
+  fontSrc: boolean
   description: string
 }
 
@@ -28,6 +30,8 @@ const CSPWhitelistManager: React.FC = () => {
       imgSrc: false,
       connectSrc: false,
       frameSrc: false,
+      styleSrc: false,
+      fontSrc: false,
       description: 'Allow resources from same origin',
     },
     {
@@ -37,6 +41,8 @@ const CSPWhitelistManager: React.FC = () => {
       imgSrc: false,
       connectSrc: false,
       frameSrc: false,
+      styleSrc: false,
+      fontSrc: false,
       description: 'Allow inline scripts',
     },
     {
@@ -46,6 +52,8 @@ const CSPWhitelistManager: React.FC = () => {
       imgSrc: false,
       connectSrc: false,
       frameSrc: false,
+      styleSrc: false,
+      fontSrc: false,
       description: 'Allow eval() in scripts',
     },
     {
@@ -55,16 +63,42 @@ const CSPWhitelistManager: React.FC = () => {
       imgSrc: false,
       connectSrc: false,
       frameSrc: false,
+      styleSrc: false,
+      fontSrc: false,
       description: 'Allow data URIs',
     },
     {
       value: 'https://www.googletagmanager.com',
       label: 'googletagmanager.com',
       scriptSrc: true,
+      imgSrc: true,
+      connectSrc: false,
+      frameSrc: false,
+      styleSrc: true,
+      fontSrc: false,
+      description: 'Google Tag Manager',
+    },
+    {
+      value: 'https://fonts.googleapis.com',
+      label: 'fonts.googleapis.com',
+      scriptSrc: false,
       imgSrc: false,
       connectSrc: false,
       frameSrc: false,
-      description: 'Google Tag Manager',
+      styleSrc: true,
+      fontSrc: false,
+      description: 'Google Fonts API',
+    },
+    {
+      value: 'https://fonts.gstatic.com',
+      label: 'fonts.gstatic.com',
+      scriptSrc: false,
+      imgSrc: false,
+      connectSrc: false,
+      frameSrc: false,
+      styleSrc: false,
+      fontSrc: true,
+      description: 'Google Fonts Static Resources',
     },
     {
       value: 'http://localhost:4000',
@@ -73,6 +107,8 @@ const CSPWhitelistManager: React.FC = () => {
       imgSrc: false,
       connectSrc: false,
       frameSrc: false,
+      styleSrc: false,
+      fontSrc: false,
       description: 'Local API server',
     },
     {
@@ -82,6 +118,8 @@ const CSPWhitelistManager: React.FC = () => {
       imgSrc: false,
       connectSrc: false,
       frameSrc: false,
+      styleSrc: false,
+      fontSrc: false,
       description: 'Production API server',
     },
   ]
@@ -158,9 +196,14 @@ const CSPWhitelistManager: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        // Check if the data has the frameSrc property (migration)
-        if (parsed[0] && parsed[0].frameSrc === undefined) {
-          console.log('Migrating old localStorage data...')
+        // Check if the data has the new properties (migration)
+        if (
+          parsed[0] &&
+          (parsed[0].styleSrc === undefined || parsed[0].fontSrc === undefined)
+        ) {
+          console.log(
+            'Migrating old localStorage data to include style-src and font-src...'
+          )
           localStorage.removeItem('csp-static-sources')
           return initialStaticSources
         }
@@ -213,7 +256,13 @@ const CSPWhitelistManager: React.FC = () => {
 
   const handleStaticToggle = (
     index: number,
-    directive: 'scriptSrc' | 'imgSrc' | 'connectSrc' | 'frameSrc'
+    directive:
+      | 'scriptSrc'
+      | 'imgSrc'
+      | 'connectSrc'
+      | 'frameSrc'
+      | 'styleSrc'
+      | 'fontSrc'
   ) => {
     const newSources = [...staticSources]
     newSources[index][directive] = !newSources[index][directive]
@@ -234,7 +283,13 @@ const CSPWhitelistManager: React.FC = () => {
     console.log('=== Apply changes to CSP ===')
     console.log('Static Sources:', {
       enabled: staticSources.filter(
-        (s) => s.scriptSrc || s.imgSrc || s.connectSrc || s.frameSrc
+        (s) =>
+          s.scriptSrc ||
+          s.imgSrc ||
+          s.connectSrc ||
+          s.frameSrc ||
+          s.styleSrc ||
+          s.fontSrc
       ),
       all: staticSources,
     })
@@ -265,12 +320,20 @@ const CSPWhitelistManager: React.FC = () => {
     const frameSrcStatic = staticSources
       .filter((s) => s.frameSrc)
       .map((s) => s.value)
+    const styleSrcStatic = staticSources
+      .filter((s) => s.styleSrc)
+      .map((s) => s.value)
+    const fontSrcStatic = staticSources
+      .filter((s) => s.fontSrc)
+      .map((s) => s.value)
 
     console.log('CSP Directives:', {
       'script-src': [...scriptSrcStatic, ...scriptSrcUrls],
       'img-src': [...imgSrcStatic, ...imgSrcUrls],
       'connect-src': [...connectSrcStatic, ...connectSrcUrls],
       'frame-src': frameSrcStatic,
+      'style-src': styleSrcStatic,
+      'font-src': fontSrcStatic,
     })
 
     // Show confirmation
@@ -327,6 +390,14 @@ const CSPWhitelistManager: React.FC = () => {
       .filter((s) => s.frameSrc)
       .map((s) => s.value)
 
+    const styleSrcStatic = staticSources
+      .filter((s) => s.styleSrc)
+      .map((s) => s.value)
+
+    const fontSrcStatic = staticSources
+      .filter((s) => s.fontSrc)
+      .map((s) => s.value)
+
     const scriptSrcUrls = sources
       .filter((s) => s.scriptSrc)
       .map((s) => `https://${s.url}`)
@@ -347,15 +418,23 @@ const CSPWhitelistManager: React.FC = () => {
 
     const frameSrc = frameSrcStatic.join(' ')
 
+    const styleSrc =
+      styleSrcStatic.length > 0
+        ? styleSrcStatic.join(' ')
+        : "'self' 'unsafe-inline'"
+
+    const fontSrc =
+      fontSrcStatic.length > 0 ? fontSrcStatic.join(' ') : "'self' data:"
+
     // Create new CSP meta tag
     const meta = document.createElement('meta')
     meta.httpEquiv = 'Content-Security-Policy'
     meta.content = `
       default-src 'self';
       script-src ${scriptSrc};
-      style-src 'self' 'unsafe-inline';
+      style-src ${styleSrc};
       img-src ${imgSrc};
-      font-src 'self' data:;
+      font-src ${fontSrc};
       connect-src ${connectSrc};
       ${frameSrc ? `frame-src ${frameSrc};` : ''}
     `
@@ -597,6 +676,58 @@ const CSPWhitelistManager: React.FC = () => {
                       }}
                     />
                     <span style={{ fontSize: '12px' }}>frame-src</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '3px',
+                      backgroundColor: source.styleSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
+                      opacity: source.styleSrc ? 1 : 0.5,
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.styleSrc}
+                      onChange={() => handleStaticToggle(index, 'styleSrc')}
+                      style={{
+                        marginRight: '6px',
+                        width: '14px',
+                        height: '14px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '12px' }}>style-src</span>
+                  </label>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      padding: '3px',
+                      backgroundColor: source.fontSrc
+                        ? '#e7f3ff'
+                        : 'transparent',
+                      borderRadius: '3px',
+                      opacity: source.fontSrc ? 1 : 0.5,
+                    }}
+                  >
+                    <input
+                      type='checkbox'
+                      checked={source.fontSrc}
+                      onChange={() => handleStaticToggle(index, 'fontSrc')}
+                      style={{
+                        marginRight: '6px',
+                        width: '14px',
+                        height: '14px',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ fontSize: '12px' }}>font-src</span>
                   </label>
                 </div>
               </div>
