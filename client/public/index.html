@@ -108,30 +108,55 @@
     <script type="text/javascript">
       // Function to reposition Tag Assistant widget to lower right corner
       function repositionTagAssistant() {
-        // Target all possible selectors for Tag Assistant
-        const allElements = document.querySelectorAll('*')
+        // Find all elements
+        const allDivs = document.getElementsByTagName('div')
 
-        allElements.forEach((element) => {
+        for (let i = 0; i < allDivs.length; i++) {
+          const element = allDivs[i]
+          const text = element.textContent || ''
+
+          // Check if this is the Tag Assistant widget
           if (
-            element.textContent.includes('Tag Assistant') &&
-            (element.classList.contains('badge') ||
-              element.classList.contains('badge-iframe') ||
-              element.className.includes('badge'))
+            text.includes('Tag Assistant Connected') ||
+            (text.includes('Tag Assistant') &&
+              (element.className.includes('badge') ||
+                element.classList.contains('badge-iframe')))
           ) {
-            element.style.setProperty('position', 'fixed', 'important')
-            element.style.setProperty('bottom', '20px', 'important')
-            element.style.setProperty('right', '20px', 'important')
-            element.style.setProperty('top', 'auto', 'important')
-            element.style.setProperty('left', 'auto', 'important')
-            element.style.setProperty('transform', 'none', 'important')
-            element.style.setProperty('margin', '0', 'important')
-            element.style.setProperty('z-index', '999999', 'important')
+            // Force position styles
+            element.style.position = 'fixed'
+            element.style.bottom = '20px'
+            element.style.right = '20px'
+            element.style.top = 'auto'
+            element.style.left = 'auto'
+            element.style.transform = 'none'
+            element.style.margin = '0'
+            element.style.zIndex = '999999'
+
+            // Also check parent elements
+            let parent = element.parentElement
+            let depth = 0
+            while (parent && depth < 3) {
+              parent.style.position = 'fixed'
+              parent.style.bottom = '20px'
+              parent.style.right = '20px'
+              parent.style.top = 'auto'
+              parent.style.left = 'auto'
+              parent.style.transform = 'none'
+              parent.style.margin = '0'
+              parent.style.zIndex = '999999'
+              parent = parent.parentElement
+              depth++
+            }
+            break
           }
-        })
+        }
       }
 
-      // Run immediately
+      // Run immediately and aggressively
       repositionTagAssistant()
+      setTimeout(repositionTagAssistant, 100)
+      setTimeout(repositionTagAssistant, 500)
+      setTimeout(repositionTagAssistant, 1000)
 
       // Run on load
       window.addEventListener('load', repositionTagAssistant)
