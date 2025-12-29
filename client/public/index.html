@@ -60,7 +60,6 @@
 
     <!-- Meta Tags -->
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
@@ -69,11 +68,16 @@
     />
 
     <!-- Content Security Policy - LinkedIn Insight Tag Support -->
+    <!-- NOTE: CSP via meta tag has limitations. For production, use HTTP headers instead. -->
+    <!-- The CSP policy is dynamically applied via JavaScript in the app -->
+    <!--
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://px.ads.linkedin.com https://px4.ads.linkedin.com https://dc.ads.linkedin.com https://snap.licdn.com https://p.adsymptotic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://px.ads.linkedin.com https://px4.ads.linkedin.com https://dc.ads.linkedin.com https://snap.licdn.com https://p.adsymptotic.com; font-src 'self' data:; connect-src 'self' http://localhost:4000 https://cse-capi-demo-api.vercel.app https://px.ads.linkedin.com https://px4.ads.linkedin.com https://dc.ads.linkedin.com https://snap.licdn.com https://p.adsymptotic.com; frame-src https://www.googletagmanager.com;"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://px.ads.linkedin.com https://px4.ads.linkedin.com https://dc.ads.linkedin.com https://snap.licdn.com https://p.adsymptotic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://px.ads.linkedin.com https://px4.ads.linkedin.com https://dc.ads.linkedin.com https://snap.licdn.com https://p.adsymptotic.com; font-src 'self' data:; connect-src 'self' http://localhost:4000 https://cse-capi-demo-api.vercel.app https://px.ads.linkedin.com https://px4.ads.linkedin.com https://dc.ads.linkedin.com https://snap.licdn.com https://p.adsymptotic.com; frame-src https://www.googletagmanager.com; manifest-src 'self';"
     />
+    -->
 
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 

@@ -95,6 +95,13 @@ const CSPWhitelistManager: React.FC = () => {
       connectSrc: true,
     },
     {
+      url: 'px.ads.linkedin.com/wa',
+      label: 'px.ads.linkedin.com/wa',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+    },
+    {
       url: 'px4.ads.linkedin.com',
       label: 'px4.ads.linkedin.com',
       scriptSrc: true,
@@ -111,6 +118,27 @@ const CSPWhitelistManager: React.FC = () => {
     {
       url: 'snap.licdn.com',
       label: 'snap.licdn.com',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+    },
+    {
+      url: 'cdn.linkedin.oribi.io',
+      label: 'cdn.linkedin.oribi.io',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+    },
+    {
+      url: 'gw.linkedin.oribi.io',
+      label: 'gw.linkedin.oribi.io',
+      scriptSrc: true,
+      imgSrc: true,
+      connectSrc: true,
+    },
+    {
+      url: 'sjs.bizographics.com',
+      label: 'sjs.bizographics.com',
       scriptSrc: true,
       imgSrc: true,
       connectSrc: true,
@@ -392,20 +420,12 @@ const CSPWhitelistManager: React.FC = () => {
   return (
     <div
       style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        maxHeight: '50vh',
-        overflowY: 'auto',
         backgroundColor: '#f5f5f5',
-        borderTop: '2px solid #0073b1',
         padding: '20px',
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
-        zIndex: 1000,
+        minHeight: '100vh',
       }}
     >
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ width: '100%' }}>
         <h3
           style={{
             margin: '0 0 15px 0',
@@ -779,6 +799,32 @@ const CSPWhitelistManager: React.FC = () => {
           Note: Changes will be applied immediately and the page will reload to
           update the Content Security Policy.
         </p>
+
+        <div
+          style={{
+            marginTop: '20px',
+            paddingTop: '20px',
+            borderTop: '1px solid #ddd',
+          }}
+        >
+          <a
+            href='https://www.linkedin.com/help/lms/answer/a425696'
+            target='_blank'
+            rel='noopener noreferrer'
+            style={{
+              color: '#0073b1',
+              textDecoration: 'none',
+              fontSize: '14px',
+              fontWeight: '500',
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.textDecoration = 'underline')
+            }
+            onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+          >
+            📚 Troubleshoot the LinkedIn Insight Tag
+          </a>
+        </div>
       </div>
     </div>
   )
