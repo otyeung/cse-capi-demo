@@ -125,13 +125,13 @@ const CSPWhitelistManager: React.FC = () => {
     {
       value: 'https://cse-capi-demo.vercel.app',
       label: 'cse-capi-demo.vercel.app',
-      scriptSrc: false,
+      scriptSrc: true,
       imgSrc: true,
       connectSrc: false,
       frameSrc: false,
-      styleSrc: false,
+      styleSrc: true,
       fontSrc: false,
-      description: 'Production App (for favicon/images)',
+      description: 'Production App (for scripts/styles/images)',
     },
   ]
 
