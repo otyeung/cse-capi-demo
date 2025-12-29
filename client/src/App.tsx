@@ -12,6 +12,35 @@ const App: React.FC = () => {
 
   useEffect(() => {
     localStorage.setItem('activeTab', activeTab)
+
+    // Force reposition Tag Assistant when tab changes
+    setTimeout(() => {
+      const repositionTagAssistant = () => {
+        const selectors = [
+          '.badge.badge-iframe',
+          '.badge-iframe',
+          '[class*="badge"]',
+        ]
+
+        selectors.forEach((selector) => {
+          const elements = document.querySelectorAll(selector)
+          elements.forEach((element) => {
+            const el = element as HTMLElement
+            if (el.textContent?.includes('Tag Assistant')) {
+              el.style.position = 'fixed'
+              el.style.bottom = '20px'
+              el.style.right = '20px'
+              el.style.top = 'auto'
+              el.style.left = 'auto'
+              el.style.transform = 'none'
+              el.style.margin = '0'
+              el.style.zIndex = '999999'
+            }
+          })
+        })
+      }
+      repositionTagAssistant()
+    }, 100)
   }, [activeTab])
 
   return (
